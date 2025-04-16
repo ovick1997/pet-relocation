@@ -104,6 +104,10 @@ jQuery(document).ready(function($) {
                     $('.pr-step-container').hide();
                     $('.pr-success').fadeIn(300);
                     window.scrollTo(0, 0);
+                    // Auto-reload after 5 seconds
+                    setTimeout(function() {
+                        location.reload();
+                    }, 5000);
                 } else {
                     alert('Error submitting form. Please try again. Server message: ' + (response.data || 'Unknown error'));
                     $('.pr-btn[type="submit"]').prop('disabled', false).text('Submit');

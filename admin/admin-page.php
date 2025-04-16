@@ -51,8 +51,42 @@ $requests = $wpdb->get_results("SELECT * FROM $table_name ORDER BY submission_da
 <!-- Modal for request details -->
 <div id="request-details-modal" class="modal">
     <div class="modal-content">
-        <span class="close">&times;</span>
-        <h2>Request Details</h2>
+        <span class="close">×</span>
+        <h2 style="color: #0C5460; margin-bottom: 20px;">Request Details</h2>
         <div id="request-details"></div>
     </div>
 </div>
+
+<script>
+jQuery(document).ready(function($) {
+    $('.view-details').click(function() {
+        const id = $(this).data('id');
+        
+        $.ajax({
+            url: ajaxurl,
+            type: 'POST',
+            data: {
+                action: 'get_request_details',
+                id: id,
+                nonce: '<?php echo wp_create_nonce("get_request_details"); ?>'
+            },
+            success: function(response) {
+                if (response.success) {
+                    $('#request-details').html(response.data);
+                    $('#request-details-modal').fadeIn(300);
+                }
+            }
+        });
+    });
+    
+    $('.close').click(function() {
+        $('#request-details-modal').fadeOut(300);
+    });
+    
+    $(window).click(function(e) {
+        if ($(e.target).hasClass('modal')) {
+            $('#request-details-modal').fadeOut(300);
+        }
+    });
+});
+</script>

@@ -1,9 +1,16 @@
 <?php
 /*
 Plugin Name: Pet Relocation Form
-Description: Multi-step form for pet relocation services
-Version: 1.0.8
+Plugin URI: https://github.com/ovick1997/pet-relocation
+Description: A multi-step form plugin for managing pet relocation requests, including pet details, travel information, and additional services. Ideal for pet relocation businesses. Use the shortcode [pet_relocation_form] to display the form on any page or post.
+Version: 1.0.9
 Author: Md Shorov Abedin
+Author URI: https://shorovabedin
+License: GPL-2.0+
+License URI: https://www.gnu.org/licenses/gpl-2.0.html
+Text Domain: pet-relocation
+Domain Path: /languages
+
 */
 
 // Prevent direct access
@@ -111,7 +118,7 @@ add_action('wp_enqueue_scripts', 'pet_relocation_enqueue_scripts');
 
 function pet_relocation_enqueue_scripts() {
     wp_enqueue_style('pet-relocation-style', plugins_url('css/style.css', __FILE__));
-    wp_enqueue_script('pet-relocation-script', plugins_url('js/script.js', __FILE__), array('jquery'), '1.0.8', true);
+    wp_enqueue_script('pet-relocation-script', plugins_url('js/script.js', __FILE__), array('jquery'), '1.0.9', true);
     wp_localize_script('pet-relocation-script', 'petRelocation', array(
         'ajaxurl' => admin_url('admin-ajax.php'),
         'nonce' => wp_create_nonce('pet_relocation_nonce')
@@ -334,33 +341,84 @@ function handle_get_request_details() {
     $pets = $wpdb->get_results($wpdb->prepare("SELECT * FROM $pets_table_name WHERE submission_id = %d", $id));
     
     if ($request) {
-        $details = '<div class="request-detail-group">';
-        foreach ($request as $key => $value) {
-            if ($key !== 'id' && !empty($value)) {
-                $details .= '<div class="request-detail-label">' . esc_html(ucwords(str_replace('_', ' ', $key))) . '</div>';
-                $details .= '<div class="request-detail-value">' . esc_html($value) . '</div>';
-            }
-        }
-        $details .= '</div>';
-        
-        if ($pets) {
-            $details .= '<div class="request-detail-group">';
-            $details .= '<div class="request-detail-label">Pets</div>';
-            foreach ($pets as $index => $pet) {
-                $details .= '<div class="request-detail-value">';
-                $details .= '<strong>Pet ' . ($index + 1) . '</strong><br>';
-                $details .= 'Type: ' . esc_html($pet->pet_type) . '<br>';
-                $details .= 'Breed: ' . esc_html($pet->breed) . '<br>';
-                $details .= 'Age: ' . esc_html($pet->age) . '<br>';
-                $details .= 'Weight: ' . esc_html($pet->weight) . '<br>';
-                if (!empty($pet->additional_info)) {
-                    $details .= 'Additional Info: ' . esc_html($pet->additional_info) . '<br>';
-                }
-                $details .= '</div>';
-            }
-            $details .= '</div>';
-        }
-        
+        ob_start();
+        ?>
+        <div class="request-detail-container">
+            <div class="request-detail-section" style="background: #F9FAFB; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
+                <h3 style="color: #0C5460; font-size: 18px; margin-bottom: 15px;">Submission Details</h3>
+                <div class="request-detail-group">
+                    <?php foreach ($request as $key => $value) {
+                        if ($key !== 'id' && !empty($value)) {
+                            echo '<div class="request-detail-item">';
+                            echo '<div class="request-detail-label" style="font-weight: 600; color: #333; margin-bottom: 5px;">' . esc_html(ucwords(str_replace('_', ' ', $key))) . '</div>';
+                            echo '<div class="request-detail-value" style="color: #666;">' . esc_html($value) . '</div>';
+                            echo '</div>';
+                        }
+                    } ?>
+                </div>
+            </div>
+            
+            <?php if ($pets): ?>
+            <div class="request-detail-section" style="background: #F9FAFB; padding: 20px; border-radius: 8px;">
+                <h3 style="color: #0C5460; font-size: 18px; margin-bottom: 15px;">Pets</h3>
+                <?php foreach ($pets as $index => $pet): ?>
+                    <div class="request-detail-group" style="margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #E5E7EB;">
+                        <div style="font-weight: 600; color: #333; margin-bottom: 10px;">Pet <?php echo $index + 1; ?></div>
+                        <div class="request-detail-item">
+                            <div class="request-detail-label">Type</div>
+                            <div class="request-detail-value"><?php echo esc_html($pet->pet_type); ?></div>
+                        </div>
+                        <div class="request-detail-item">
+                            <div class="request-detail-label">Breed</div>
+                            <div class="request-detail-value"><?php echo esc_html($pet->breed); ?></div>
+                        </div>
+                        <div class="request-detail-item">
+                            <div class="request-detail-label">Age</div>
+                            <div class="request-detail-value"><?php echo esc_html($pet->age); ?></div>
+                        </div>
+                        <div class="request-detail-item">
+                            <div class="request-detail-label">Weight</div>
+                            <div class="request-detail-value"><?php echo esc_html($pet->weight); ?></div>
+                        </div>
+                        <div class="request-detail-item">
+                            <div class="request-detail-label">Spaying Status</div>
+                            <div class="request-detail-value"><?php echo esc_html($pet->spaying_status); ?></div>
+                        </div>
+                        <div class="request-detail-item">
+                            <div class="request-detail-label">Vaccination Report</div>
+                            <div class="request-detail-value"><?php echo esc_html($pet->vaccination_report); ?></div>
+                        </div>
+                        <?php if (!empty($pet->health_condition)): ?>
+                        <div class="request-detail-item">
+                            <div class="request-detail-label">Health Condition</div>
+                            <div class="request-detail-value"><?php echo esc_html($pet->health_condition); ?></div>
+                        </div>
+                        <?php endif; ?>
+                        <?php if (!empty($pet->specific_medicine)): ?>
+                        <div class="request-detail-item">
+                            <div class="request-detail-label">Specific Medicine</div>
+                            <div class="request-detail-value"><?php echo esc_html($pet->specific_medicine); ?></div>
+                        </div>
+                        <?php endif; ?>
+                        <?php if (!empty($pet->behaviour_training)): ?>
+                        <div class="request-detail-item">
+                            <div class="request-detail-label">Behaviour/Training</div>
+                            <div class="request-detail-value"><?php echo esc_html($pet->behaviour_training); ?></div>
+                        </div>
+                        <?php endif; ?>
+                        <?php if (!empty($pet->additional_info)): ?>
+                        <div class="request-detail-item">
+                            <div class="request-detail-label">Additional Info</div>
+                            <div class="request-detail-value"><?php echo esc_html($pet->additional_info); ?></div>
+                        </div>
+                        <?php endif; ?>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+            <?php endif; ?>
+        </div>
+        <?php
+        $details = ob_get_clean();
         wp_send_json_success($details);
     } else {
         wp_send_json_error('Request not found');
