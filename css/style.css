@@ -4,20 +4,20 @@
  * Author: Md Shorov Abedin
  */
 
-.pr-form {
+ .pr-form {
     max-width: 800px;
     margin: 0 auto;
-    padding: 20px;
+    padding: 0;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
-    background: #F8F9FA;
+    background: transparent;
 }
 
 .pr-step-container {
     display: flex;
-    margin-bottom: 30px;
+    margin-bottom: 20px;
     gap: 15px;
-    background: #fff;
-    padding: 15px;
+    background: transparent;
+    padding: 0;
     border-radius: 8px;
 }
 
@@ -29,6 +29,22 @@
     border-radius: 4px;
     border: 1px solid #E5E7EB;
     transition: all 0.3s ease;
+    text-align: start;
+    border-radius: 10px;
+    position: relative;
+}
+.pr-step-item:after {
+    content: "";
+    width: 50px;
+    background: #c5c5c5;
+    position: absolute;
+    z-index: 0;
+    right: -50px;
+    top: 50%;
+    height: 1px;
+}
+.pr-step-item:last-child:after {
+    display: none;
 }
 
 .pr-step-item.active {
@@ -39,22 +55,30 @@
 
 .pr-step-item h3 {
     margin: 0;
-    font-size: 14px;
-    font-weight: 600;
+    font-size: 12px;
+    font-weight: 500;
     text-transform: uppercase;
 }
-
+.pr-step-item.active h3 {
+    color: #9CE452 !important;
+}
+.pr-step-item.active p {
+    color: #fff !important;
+}
 .pr-step-item p {
     margin: 5px 0 0;
-    font-size: 14px;
+    font-size: 16px;
+    font-weight: 500;
+    color: #146b75;
+    line-height: 24px;
 }
 
 .pr-form-step {
     display: none;
     background: #fff;
-    padding: 30px;
+    padding: 15px;
     border-radius: 8px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .pr-form-step.active {
@@ -62,7 +86,7 @@
 }
 
 .pr-form-group {
-    margin-bottom: 20px;
+    margin-bottom: 15px;
 }
 
 .pr-form-label {
@@ -75,22 +99,31 @@
 
 .pr-form-control {
     width: 100%;
-    padding: 10px 12px;
-    border: 1px solid #D1D5DB;
+    padding: 10px 12px !important;
+    border: none !important;
     border-radius: 4px;
     font-size: 14px;
     background-color: #FFFFFF;
     color: #333;
     box-sizing: border-box;
+    border-radius: 7px !important;
 }
 
+.pr-form-control:focus {
+    border-color: #0C5460 !important;
+    background-color: #FFFFFF !important;
+    box-shadow: none;
+}
+.pr-form-control.pfc-w {
+    background: #f0f4f5;
+}
 .pr-form-control::placeholder {
     color: #9CA3AF;
 }
 
 .pr-form-control.error {
-    border-color: #dc3545;
-    background-color: #fff5f5;
+    border-color: #dc3545 !important;
+    background-color: #ff3a3a1f;
 }
 
 .pr-form-control:focus {
@@ -101,29 +134,40 @@
 
 .pr-form-row {
     display: flex;
-    gap: 15px;
+    flex-wrap: wrap;
+    gap: 15px; /* Optional: adds space between columns */
     margin-bottom: 20px;
-}
+  }
+
+  .pr-additonal-service-section .pr-form-col {
+    flex: 1 1 calc(50% - 10px); /* 2 columns */
+    box-sizing: border-box;
+  }
 
 .pr-form-col {
-    flex: 1;
-}
+    flex: 1 1 calc(33.333% - 13.33px); /* 3 columns */
+    box-sizing: border-box;
+  }
 
+  .pr-form-col .pr-form-group {
+    margin-bottom: 0;
+}
 .pr-pet-info {
-    background: #F9FAFB;
-    padding: 25px;
+    background: #F0F4F5;
+    padding: 15px;
     border-radius: 8px;
     margin-bottom: 25px;
-    border: 1px solid #E5E7EB;
+    border: none;
 }
 
 .pr-pet-info-title {
-    font-size: 16px;
+    font-size: 20px;
     font-weight: 600;
-    margin-bottom: 25px;
+    margin-bottom: 15px;
     color: #0C5460;
+    margin-top: 0;
+    line-height: 30px;
 }
-
 .pr-radio-group {
     display: flex;
     gap: 20px;
@@ -147,32 +191,34 @@
 }
 
 .pr-btn {
-    padding: 12px 28px;
+    padding: 12px 28px !important;
     border: none;
-    border-radius: 4px;
+    border-radius: 4px !important;
     cursor: pointer;
-    font-size: 14px;
-    font-weight: 500;
+    font-size: 16px !important;
+    font-weight: 500 !important;
     transition: all 0.2s;
     text-transform: uppercase;
+    color: #fff !important;
+    border-radius: 100px;
 }
 
 .pr-btn-primary {
-    background: #0C5460;
+    background: #0C5460 !important;
     color: white;
 }
 
 .pr-btn-primary:hover {
-    background: #0a4550;
+    background: #0a4550 !important;
 }
 
 .pr-btn-secondary {
-    background: #6B7280;
-    color: white;
+    background: #6B7280 !important;
+    color: white !important;
 }
 
 .pr-btn-secondary:hover {
-    background: #4B5563;
+    background: #4B5563 !important;
 }
 
 .pr-navigation {
@@ -219,18 +265,20 @@
 }
 
 .pr-location-section {
-    border: 1px solid #E5E7EB;
-    padding: 25px;
+    background: #F0F4F5;
+    padding: 15px;
     border-radius: 8px;
     margin-bottom: 25px;
-    background: #F9FAFB;
+    border: none;
 }
 
 .pr-location-title {
-    font-size: 16px;
+    font-size: 20px;
     font-weight: 600;
+    margin-bottom: 15px;
     color: #0C5460;
-    margin-bottom: 25px;
+    margin-top: 0;
+    line-height: 30px;
 }
 
 .pr-add-pet {
@@ -256,6 +304,14 @@
     border-radius: 4px;
     border: 1px solid #D1D5DB;
     margin-bottom: 15px;
+}
+
+.pr-additonal-service-section{
+    background: #F0F4F5;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 25px;
+    border: none;
 }
 
 /* Admin styles */
@@ -327,4 +383,28 @@
 
 .request-detail-value {
     color: #666;
+}
+
+[type=button], [type=reset], [type=submit], button{
+    border-radius: 100px !important;
+    border-color: #146b75 !important;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+    .pr-form-col {
+        flex: 1 1 calc(100% - 13.33px); /* 1 column */
+    }
+    .pr-form-row {
+        flex-direction: column;
+    }
+    .pr-step-container {
+        /* flex-direction: column; */
+    }
+    .pr-step-item {
+        margin-bottom: 10px;
+    }
+    .pr-mobile-none{
+        display: none;
+    }
 }

@@ -5,68 +5,116 @@
  * Author: Md Shorov Abedin
  */
 
-// Prevent direct access
 if (!defined('ABSPATH')) {
     exit;
 }
-
-global $wpdb;
-$table_name = $wpdb->prefix . 'pet_relocation';
-$requests = $wpdb->get_results("SELECT * FROM $table_name ORDER BY submission_date DESC");
 ?>
 
 <div class="wrap">
-    <h1>Pet Relocation Requests</h1>
+    <h1><?php echo esc_html__('Pet Relocation Requests', 'pet-relocation'); ?></h1>
     
     <table class="wp-list-table widefat fixed striped">
         <thead>
             <tr>
-                <th class="column-id">ID</th>
-                <th class="column-number_of_pets">Number of Pets</th>
-                <th class="column-departure">Departure</th>
-                <th class="column-arrival">Arrival</th>
-                <th class="column-travel_date">Travel Date</th>
-                <th class="column-submission_date">Submission Date</th>
-                <th class="column-actions">Actions</th>
+                <th><?php echo esc_html__('ID', 'pet-relocation'); ?></th>
+                <th><?php echo esc_html__('Number of Pets', 'pet-relocation'); ?></th>
+                <th><?php echo esc_html__('Submission Date', 'pet-relocation'); ?></th>
+                <th><?php echo esc_html__('Actions', 'pet-relocation'); ?></th>
             </tr>
         </thead>
         <tbody>
-            <?php if ($requests): ?>
-                <?php foreach ($requests as $request): ?>
-                    <tr>
-                        <td><?php echo esc_html($request->id); ?></td>
-                        <td><?php echo esc_html($request->number_of_pets); ?></td>
-                        <td><?php echo esc_html($request->departure_city); ?></td>
-                        <td><?php echo esc_html($request->arrival_city); ?></td>
-                        <td><?php echo esc_html($request->travel_date); ?></td>
-                        <td><?php echo esc_html($request->submission_date); ?></td>
-                        <td>
-                            <button class="button view-details" data-id="<?php echo esc_attr($request->id); ?>">View Details</button>
-                        </td>
-                    </tr>
-                <?php endforeach; ?>
-            <?php else: ?>
+            <?php
+            global $wpdb;
+            $table_name = $wpdb->prefix . 'pet_relocation';
+            $requests = $wpdb->get_results("SELECT id, number_of_pets, submission_date FROM $table_name ORDER BY submission_date DESC");
+            
+            foreach ($requests as $request) {
+                ?>
                 <tr>
-                    <td colspan="7">No requests found.</td>
+                    <td><?php echo esc_html($request->id); ?></td>
+                    <td><?php echo esc_html($request->number_of_pets); ?></td>
+                    <td><?php echo esc_html(date_i18n(get_option('date_format'), strtotime($request->submission_date))); ?></td>
+                    <td>
+                        <button class="button view-details" data-id="<?php echo esc_attr($request->id); ?>">
+                            <?php echo esc_html__('View Details', 'pet-relocation'); ?>
+                        </button>
+                    </td>
                 </tr>
-            <?php endif; ?>
+                <?php
+            }
+            ?>
         </tbody>
     </table>
 </div>
 
-<!-- Modal for request details -->
-<div id="request-details-modal" class="modal">
+<!-- Modal for Details -->
+<div id="request-details-modal" style="display: none;">
     <div class="modal-content">
-        <span class="close">×</span>
-        <h2 style="color: #0C5460; margin-bottom: 20px;">Request Details</h2>
-        <div id="request-details"></div>
+        <span class="modal-close">×</span>
+        <div id="request-details-content"></div>
     </div>
 </div>
 
+<style>
+    #request-details-modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.5);
+        z-index: 1000;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .modal-content {
+        background: #fff;
+        padding: 20px;
+        max-width: 600px;
+        width: 90%;
+        max-height: 80vh;
+        overflow-y: auto;
+        border-radius: 8px;
+        position: relative;
+    }
+    .modal-close {
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        font-size: 20px;
+        cursor: pointer;
+        color: #333;
+    }
+    .request-detail-container {
+        font-size: 14px;
+        line-height: 1.6;
+    }
+    .request-detail-section {
+        margin-bottom: 20px;
+    }
+    .request-detail-group {
+        display: grid;
+        gap: 10px;
+    }
+    .request-detail-item {
+        display: flex;
+        flex-direction: column;
+    }
+    .request-detail-label {
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 5px;
+    }
+    .request-detail-value {
+        color: #666;
+    }
+</style>
+
 <script>
 jQuery(document).ready(function($) {
-    $('.view-details').click(function() {
-        const id = $(this).data('id');
+    $('.view-details').on('click', function() {
+        var id = $(this).data('id');
         
         $.ajax({
             url: ajaxurl,
@@ -74,24 +122,31 @@ jQuery(document).ready(function($) {
             data: {
                 action: 'get_request_details',
                 id: id,
-                nonce: '<?php echo wp_create_nonce("get_request_details"); ?>'
+                nonce: '<?php echo wp_create_nonce('get_request_details'); ?>'
             },
             success: function(response) {
                 if (response.success) {
-                    $('#request-details').html(response.data);
-                    $('#request-details-modal').fadeIn(300);
+                    $('#request-details-content').html(response.data);
+                    $('#request-details-modal').show();
+                } else {
+                    alert('Error loading details: ' + response.data);
                 }
+            },
+            error: function() {
+                alert('Error loading details. Please try again.');
             }
         });
     });
     
-    $('.close').click(function() {
-        $('#request-details-modal').fadeOut(300);
+    $('.modal-close').on('click', function() {
+        $('#request-details-modal').hide();
+        $('#request-details-content').html('');
     });
     
-    $(window).click(function(e) {
-        if ($(e.target).hasClass('modal')) {
-            $('#request-details-modal').fadeOut(300);
+    $(document).on('click', function(event) {
+        if ($(event.target).is('#request-details-modal')) {
+            $('#request-details-modal').hide();
+            $('#request-details-content').html('');
         }
     });
 });

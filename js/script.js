@@ -136,18 +136,17 @@ jQuery(document).ready(function($) {
     $('.pr-add-pet').click(function(e) {
         e.preventDefault();
         const petCount = parseInt($('#number_of_pets').val()) || 1;
-        if (petCount >= 10) {
-            alert('Maximum 10 pets allowed.');
+        if (petIndex >= petCount - 1) {
+            alert('Cannot add more pets than specified in Number of Pet.');
             return;
         }
         
         petIndex++;
-        $('#number_of_pets').val(petCount + 1);
         
         const newTextBox = `
             <div class="pr-form-group additional-info-box" data-pet-index="${petIndex}">
-                <label class="pr-form-label" for="additional_info_${petIndex}">Additional Information for Pet ${String(petCount + 1).padStart(2, '0')}</label>
-                <input type="text" name="pets[${petIndex}][additional_info]" id="additional_info_${petIndex}" class="pr-form-control" placeholder="Enter additional details for Pet ${String(petCount + 1).padStart(2, '0')}">
+                <label class="pr-form-label" for="additional_info_${petIndex}">Additional Information for Pet ${String(petIndex + 1).padStart(2, '0')}</label>
+                <input type="text" name="pets[${petIndex}][additional_info]" id="additional_info_${petIndex}" class="pr-form-control" placeholder="Enter additional details for Pet ${String(petIndex + 1).padStart(2, '0')}">
             </div>
         `;
         $('#additional-info-container').append(newTextBox);

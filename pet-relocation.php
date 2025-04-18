@@ -3,7 +3,7 @@
 Plugin Name: Pet Relocation Form
 Plugin URI: https://github.com/ovick1997/pet-relocation
 Description: A multi-step form plugin for managing pet relocation requests, including pet details, travel information, and additional services. Ideal for pet relocation businesses. Use the shortcode [pet_relocation_form] to display the form on any page or post.
-Version: 1.0.11
+Version: 1.0.15
 Author: Md Shorov Abedin
 Author URI: https://shorovabedin
 License: GPL-2.0+
@@ -18,12 +18,13 @@ if (!defined('ABSPATH')) {
 }
 
 /**
- * Activation hook to create database tables.
+ * Activation hook to create or update database tables.
  */
 register_activation_hook(__FILE__, 'pet_relocation_activate');
 
 function pet_relocation_activate() {
     pet_relocation_create_tables();
+    pet_relocation_update_schema();
 }
 
 /**
@@ -39,13 +40,13 @@ function pet_relocation_create_tables() {
         id mediumint(9) NOT NULL AUTO_INCREMENT,
         number_of_pets int NOT NULL,
         relocation_type varchar(20) NOT NULL,
-        departure_address text NOT NULL,
+        departure_address_line text NOT NULL,
         departure_city varchar(100) NOT NULL,
         departure_country varchar(100) NOT NULL,
         travel_date date NOT NULL,
         same_flight varchar(10) NOT NULL,
-        flight_info text,
-        arrival_address text NOT NULL,
+        flight_information text,
+        arrival_address_line text NOT NULL,
         arrival_city varchar(100) NOT NULL,
         arrival_country varchar(100) NOT NULL,
         emergency_contact varchar(100),
@@ -88,30 +89,87 @@ function pet_relocation_create_tables() {
 }
 
 /**
- * Checks for missing tables on plugin load and creates them if needed.
+ * Updates database schema for existing installations.
  */
-add_action('plugins_loaded', 'pet_relocation_check_tables');
-
-function pet_relocation_check_tables() {
+function pet_relocation_update_schema() {
     global $wpdb;
     $table_name = $wpdb->prefix . 'pet_relocation';
     $pets_table_name = $wpdb->prefix . 'pet_relocation_pets';
     
+    // Check and rename columns in main table
+    $columns = $wpdb->get_results("SHOW COLUMNS FROM $table_name");
+    $column_names = array_column($columns, 'Field');
+    
+    // Rename departure_address to departure_address_line
+    if (in_array('departure_address', $column_names) && !in_array('departure_address_line', $column_names)) {
+        $wpdb->query("ALTER TABLE $table_name CHANGE departure_address departure_address_line TEXT NOT NULL");
+        error_log('Renamed departure_address to departure_address_line');
+    }
+    
+    // Rename arrival_address to arrival_address_line
+    if (in_array('arrival_address', $column_names) && !in_array('arrival_address_line', $column_names)) {
+        $wpdb->query("ALTER TABLE $table_name CHANGE arrival_address arrival_address_line TEXT NOT NULL");
+        error_log('Renamed arrival_address to arrival_address_line');
+    }
+    
+    // Rename flight_info to flight_information
+    if (in_array('flight_info', $column_names) && !in_array('flight_information', $column_names)) {
+        $wpdb->query("ALTER TABLE $table_name CHANGE flight_info flight_information TEXT");
+        error_log('Renamed flight_info to flight_information');
+    }
+    
+    // Add health_certificate if missing
+    if (!in_array('health_certificate', $column_names)) {
+        $wpdb->query("ALTER TABLE $table_name ADD health_certificate VARCHAR(20) NOT NULL AFTER post_arrival_support");
+        error_log('Added health_certificate column');
+    }
+    
+    // Remove health_certificate from pets table if it exists
+    $pet_columns = $wpdb->get_results("SHOW COLUMNS FROM $pets_table_name");
+    $pet_column_names = array_column($pet_columns, 'Field');
+    if (in_array('health_certificate', $pet_column_names)) {
+        $wpdb->query("ALTER TABLE $pets_table_name DROP COLUMN health_certificate");
+        error_log('Dropped health_certificate from pets table');
+    }
+}
+
+/**
+ * Verifies schema on plugin load to catch missed updates.
+ */
+add_action('plugins_loaded', 'pet_relocation_verify_schema');
+
+function pet_relocation_verify_schema() {
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'pet_relocation';
+    $pets_table_name = $wpdb->prefix . 'pet_relocation_pets';
+    
+    // Check if tables exist
     $main_table_exists = $wpdb->get_var("SHOW TABLES LIKE '$table_name'") == $table_name;
     $pets_table_exists = $wpdb->get_var("SHOW TABLES LIKE '$pets_table_name'") == $pets_table_name;
     
     if (!$main_table_exists || !$pets_table_exists) {
         error_log('One or more tables missing. Creating tables...');
         pet_relocation_create_tables();
-        
-        $main_table_exists = $wpdb->get_var("SHOW TABLES LIKE '$table_name'") == $table_name;
-        $pets_table_exists = $wpdb->get_var("SHOW TABLES LIKE '$pets_table_name'") == $pets_table_name;
-        
-        if (!$main_table_exists) {
-            error_log("Failed to create table $table_name");
-        }
-        if (!$pets_table_exists) {
-            error_log("Failed to create table $pets_table_name");
+        pet_relocation_update_schema();
+        return;
+    }
+    
+    // Verify main table columns
+    $columns = $wpdb->get_results("SHOW COLUMNS FROM $table_name");
+    $column_names = array_column($columns, 'Field');
+    $required_columns = [
+        'id', 'number_of_pets', 'relocation_type', 'departure_address_line', 'departure_city',
+        'departure_country', 'travel_date', 'same_flight', 'flight_information', 'arrival_address_line',
+        'arrival_city', 'arrival_country', 'emergency_contact', 'grooming_required', 'post_arrival_support',
+        'health_certificate', 'is_microchipped', 'vaccination_status', 'health_issues', 'iata_crate',
+        'submission_date'
+    ];
+    
+    foreach ($required_columns as $column) {
+        if (!in_array($column, $column_names)) {
+            error_log("Missing column $column in $table_name. Running schema update...");
+            pet_relocation_update_schema();
+            break;
         }
     }
 }
@@ -123,7 +181,7 @@ add_action('wp_enqueue_scripts', 'pet_relocation_enqueue_scripts');
 
 function pet_relocation_enqueue_scripts() {
     wp_enqueue_style('pet-relocation-style', plugins_url('css/style.css', __FILE__));
-    wp_enqueue_script('pet-relocation-script', plugins_url('js/script.js', __FILE__), array('jquery'), '1.0.11', true);
+    wp_enqueue_script('pet-relocation-script', plugins_url('js/script.js', __FILE__), array('jquery'), '1.0.15', true);
     wp_localize_script('pet-relocation-script', 'petRelocation', array(
         'ajaxurl' => admin_url('admin-ajax.php'),
         'nonce' => wp_create_nonce('pet_relocation_nonce')
@@ -195,13 +253,13 @@ function handle_pet_relocation_submission() {
         $submission_data = array(
             'number_of_pets' => isset($_POST['number_of_pets']) ? intval($_POST['number_of_pets']) : 0,
             'relocation_type' => sanitize_text_field($_POST['relocation_type'] ?? ''),
-            'departure_address' => sanitize_text_field($_POST['departure_address'] ?? ''),
+            'departure_address_line' => sanitize_text_field($_POST['departure_address_line'] ?? ''),
             'departure_city' => sanitize_text_field($_POST['departure_city'] ?? ''),
             'departure_country' => sanitize_text_field($_POST['departure_country'] ?? ''),
             'travel_date' => sanitize_text_field($_POST['travel_date'] ?? ''),
             'same_flight' => sanitize_text_field($_POST['same_flight'] ?? ''),
-            'flight_info' => sanitize_text_field($_POST['flight_info'] ?? ''),
-            'arrival_address' => sanitize_text_field($_POST['arrival_address'] ?? ''),
+            'flight_information' => sanitize_text_field($_POST['flight_information'] ?? ''),
+            'arrival_address_line' => sanitize_text_field($_POST['arrival_address_line'] ?? ''),
             'arrival_city' => sanitize_text_field($_POST['arrival_city'] ?? ''),
             'arrival_country' => sanitize_text_field($_POST['arrival_country'] ?? ''),
             'emergency_contact' => sanitize_text_field($_POST['emergency_contact'] ?? ''),
@@ -219,12 +277,12 @@ function handle_pet_relocation_submission() {
         $required_fields = [
             'number_of_pets',
             'relocation_type',
-            'departure_address',
+            'departure_address_line',
             'departure_city',
             'departure_country',
             'travel_date',
             'same_flight',
-            'arrival_address',
+            'arrival_address_line',
             'arrival_city',
             'arrival_country',
             'grooming_required',
