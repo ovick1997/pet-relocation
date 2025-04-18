@@ -3,7 +3,7 @@ Contributors: ovick1997
 Tags: pet relocation, form, multi-step, admin, pets
 Requires at least: 5.0
 Tested up to: 6.6
-Stable tag: 1.0.10
+Stable tag: 1.0.11
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -52,6 +52,10 @@ Go to the "Pet Relocation" menu in the admin area and click "View Details" for a
 
 == Changelog ==
 
+= 1.0.11 =
+* Fixed AJAX submission error caused by a typo in field sanitization.
+* Added enhanced error logging for better debugging.
+
 = 1.0.10 =
 * Updated plugin header with improved description and shortcode instructions.
 * Added license comments to all files for WordPress.org compliance.
@@ -69,8 +73,8 @@ Go to the "Pet Relocation" menu in the admin area and click "View Details" for a
 
 == Upgrade Notice ==
 
-= 1.0.10 =
-Update to include improved plugin header and license comments. No functional changes.
+= 1.0.11 =
+This update fixes an AJAX submission error and improves debugging. Recommended for all users.
 
 == Arbitrary section ==
 
