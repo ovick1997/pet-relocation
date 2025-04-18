@@ -78,4 +78,4 @@ This update fixes an AJAX submission error and improves debugging. Recommended f
 
 == Arbitrary section ==
 
-For support or contributions, visit the plugin repository at https://github.com/ovick1997/pet-relocation or contact the author at ovick1997@gmail.com.
+For support or contributions, visit the plugin repository at https://github.com/ovick1997/pet-relocation or contact the author at mdovick1952@gmail.com.
