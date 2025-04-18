@@ -3,12 +3,12 @@ Contributors: ovick1997
 Tags: pet relocation, form, multi-step, admin, pets
 Requires at least: 5.0
 Tested up to: 6.6
-Stable tag: 1.0.9
+Stable tag: 1.0.10
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-A multi-step form plugin for managing pet relocation requests, including pet details, travel information, and additional services.
+A multi-step form plugin for managing pet relocation requests, including pet details, travel information, and additional services. Use the shortcode [pet_relocation_form] to display the form on any page or post.
 
 == Description ==
 
@@ -52,6 +52,10 @@ Go to the "Pet Relocation" menu in the admin area and click "View Details" for a
 
 == Changelog ==
 
+= 1.0.10 =
+* Updated plugin header with improved description and shortcode instructions.
+* Added license comments to all files for WordPress.org compliance.
+
 = 1.0.9 =
 * Added WordPress.org guideline format with readme.txt.
 * Updated plugin header with required fields.
@@ -65,8 +69,8 @@ Go to the "Pet Relocation" menu in the admin area and click "View Details" for a
 
 == Upgrade Notice ==
 
-= 1.0.9 =
-Update to include WordPress.org compliance and improved documentation. No functional changes.
+= 1.0.10 =
+Update to include improved plugin header and license comments. No functional changes.
 
 == Arbitrary section ==
 

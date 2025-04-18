@@ -1,3 +1,9 @@
+/*
+ * Pet Relocation Form - JavaScript
+ * License: GPL-2.0+
+ * Author: Md Shorov Abedin
+ */
+
 jQuery(document).ready(function($) {
     let currentStep = 1;
     const totalSteps = 3;
@@ -84,9 +90,9 @@ jQuery(document).ready(function($) {
         formData.append('action', 'submit_pet_relocation');
         formData.append('nonce', petRelocation.nonce);
         
-        // Log form data for debugging
+        console.log('Form Data Sent:');
         for (let [key, value] of formData.entries()) {
-            console.log(key + ': ' + value);
+            console.log(`${key}: ${value}`);
         }
         
         $('.pr-btn[type="submit"]').prop('disabled', true).text('Submitting...');
@@ -104,18 +110,24 @@ jQuery(document).ready(function($) {
                     $('.pr-step-container').hide();
                     $('.pr-success').fadeIn(300);
                     window.scrollTo(0, 0);
-                    // Auto-reload after 5 seconds
                     setTimeout(function() {
                         location.reload();
                     }, 5000);
                 } else {
+                    console.error('Server Error Response:', response);
                     alert('Error submitting form. Please try again. Server message: ' + (response.data || 'Unknown error'));
                     $('.pr-btn[type="submit"]').prop('disabled', false).text('Submit');
                 }
             },
             error: function(jqXHR, textStatus, errorThrown) {
-                console.log('AJAX Error:', textStatus, errorThrown);
-                alert('Error submitting form. Please try again. AJAX error: ' + textStatus);
+                console.error('AJAX Error Details:', {
+                    status: jqXHR.status,
+                    statusText: jqXHR.statusText,
+                    responseText: jqXHR.responseText,
+                    textStatus: textStatus,
+                    errorThrown: errorThrown
+                });
+                alert('Error submitting form. Please try again. AJAX error: ' + textStatus + ' (' + jqXHR.status + ')');
                 $('.pr-btn[type="submit"]').prop('disabled', false).text('Submit');
             }
         });
@@ -139,36 +151,6 @@ jQuery(document).ready(function($) {
             </div>
         `;
         $('#additional-info-container').append(newTextBox);
-    });
-    
-    $('.view-details').click(function() {
-        const id = $(this).data('id');
-        
-        $.ajax({
-            url: ajaxurl,
-            type: 'POST',
-            data: {
-                action: 'get_request_details',
-                id: id,
-                nonce: '<?php echo wp_create_nonce("get_request_details"); ?>'
-            },
-            success: function(response) {
-                if (response.success) {
-                    $('#request-details').html(response.data);
-                    $('#request-details-modal').fadeIn(300);
-                }
-            }
-        });
-    });
-    
-    $('.close').click(function() {
-        $('#request-details-modal').fadeOut(300);
-    });
-    
-    $(window).click(function(e) {
-        if ($(e.target).hasClass('modal')) {
-            $('#request-details-modal').fadeOut(300);
-        }
     });
     
     showStep(1);

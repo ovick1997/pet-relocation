@@ -1,4 +1,10 @@
 <?php
+/*
+ * Pet Relocation Form - Form Template
+ * License: GPL-2.0+
+ * Author: Md Shorov Abedin
+ */
+
 // Prevent direct access
 if (!defined('ABSPATH')) {
     exit;
@@ -234,7 +240,7 @@ if (!defined('ABSPATH')) {
                 <div class="pr-form-col">
                     <div class="pr-form-group">
                         <label class="pr-form-label" for="is_microchipped">Microchipped *</label>
-                        <select name="is_microchipped" id="is_microchipped" class="pr-form-control" required>
+                    <select name="is_microchipped" id="is_microchipped" class="pr-form-control" required>
                             <option value="">Select option</option>
                             <option value="Yes">Yes</option>
                             <option value="No">No</option>
